@@ -1,4 +1,4 @@
-`default_nettype 
+`default_nettype none
 
 module sequence_header_parser (
     input  logic clk,
@@ -8,10 +8,12 @@ module sequence_header_parser (
     input  logic                                 start,
 
     output logic                                 done,
-    output logic                                 data_out // TODO: define struct for data_out
-    output logic                                 pad, 
-    output logic [$clog2(PARSER_DATA_WIDTH)-1:0] pad_len
+    output logic                                 data_out, // TODO: define struct for data_out
+
+    output logic                                 pad,
+    output logic [$clog2(PARSER_DATA_WIDTH)-1:0] pad_len,
     output logic                                 pop
-)
+);
 
 endmodule
+

@@ -14,24 +14,24 @@ module obu_parser #(
     input  logic [PARSER_DATA_WIDTH-1:0]         data,
     input  logic                                 avail,
     input  logic                                 start,
-    input  logic                                 data_valid,
-    input  logic [$clog2(PARSER_DATA_WIDTH)-1:0] end_len, // ignore til the last part that isn't 32-bit complete
+    input  logic                                 last,
+    input  logic [$clog2(PARSER_DATA_WIDTH)-1:0] last_len, // ignore til the last part that isn't 32-bit complete
     output logic                                 pop // pop from fifo
 
     // TODO: output data to downstream units
 );
     typedef enum integer {
-        IDLE, 
-        SEQ_HDR, 
-        FRAME_HDR, 
+        IDLE,
+        SEQ_HDR,
+        FRAME_HDR,
         TILE_INFO
     } state_t;
-    
+
     state_t curr_state;
     state_t next_state;
 
     logic [31:0] aligned_data;
-    
+
     // field_aligner f_a(
     //     .data_in(data),
     //     .data_out(aligned_data)
@@ -41,7 +41,7 @@ module obu_parser #(
 
     // seq_hdr_parser(.start, .done, .data(), .data_out())
     // frame_hdr_parser
-    // tile_info_parser 
+    // tile_info_parser
 
     // state machine for controlling which hdr parser to go
     always_comb begin
