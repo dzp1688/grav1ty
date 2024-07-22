@@ -10,15 +10,15 @@ module field_aligner (
 
     input  logic                                 pop_in,
     input  logic                                 pad,
-    input  logic [$clog2(PARSER_DATA_WIDTH)-1:0] pad_len,
+    input  logic [PAD_LEN_WIDTH-1:0]             pad_len,
 
     output logic [PARSER_DATA_WIDTH-1:0]         data_out,
     output logic                                 pop_out
 );
 
-    logic [$clog2(PARSER_DATA_WIDTH)-1:0] buffer_pad_len_right;
-    logic [$clog2(PARSER_DATA_WIDTH)-1:0] buffer_pad_len_left;
-    logic [PARSER_DATA_WIDTH-1:0]         buffer;
+    logic [PAD_LEN_WIDTH-1:0]     buffer_pad_len_right;
+    logic [PAD_LEN_WIDTH-1:0]     buffer_pad_len_left;
+    logic [PARSER_DATA_WIDTH-1:0] buffer;
 
     // TODO: might need to optimize
     assign data_out = (data_in >> buffer_pad_len_right) | (buffer << buffer_pad_len_left);

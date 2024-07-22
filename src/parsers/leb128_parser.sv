@@ -12,7 +12,7 @@ module leb128_parser (
     logic [5:0] count;
     logic       started;
 
-    assign done = started & !data_in[7];
+    assign done = started && !stall && !data_in[7];
 
     always_ff @(posedge clk, negedge rst_n) begin
         if (~rst_n) begin

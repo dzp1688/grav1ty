@@ -15,7 +15,7 @@ module obu_parser #(
     input  logic                                 avail,
     input  logic                                 start,
     input  logic                                 last,
-    input  logic [$clog2(PARSER_DATA_WIDTH)-1:0] last_len, // ignore til the last part that isn't 32-bit complete
+    input  logic [PAD_LEN_WIDTH-1:0]             last_len, // ignore til the last part that isn't 32-bit complete
     output logic                                 pop // pop from fifo
 
     // TODO: output data to downstream units
@@ -57,7 +57,6 @@ module obu_parser #(
             curr_state <= next_state;
         end
     end
-
 
 endmodule
 

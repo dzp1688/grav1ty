@@ -11,10 +11,10 @@ module obu_header_parser (
     input  logic                                 start,
 
     output logic                                 done,
-    output logic                                 data_out, // TODO: define struct for data_out
+    output logic [55:0]                          obu_size, // TODO: define struct for data_out
 
     output logic                                 pad,
-    output logic [$clog2(PARSER_DATA_WIDTH)-1:0] pad_len,
+    output logic [PAD_LEN_WIDTH-1:0]             pad_len,
     output logic                                 pop
 );
     logic        start;
@@ -22,7 +22,6 @@ module obu_header_parser (
     logic        done_word;
     logic        stall;
     logic [7:0]  data_in;
-    logic [55:0] obu_size;
 
     leb128_parser obu_size_parser (
         .clk(clk),
@@ -60,7 +59,6 @@ module obu_header_parser (
             count <= '0;
         end
     end
-
 
 endmodule
 
