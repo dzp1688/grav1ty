@@ -37,6 +37,9 @@ module sequence_header_parser (
 
     logic [55:0] obu_size;
 
+    logic [3:0] width_bits;
+    logic [3:0] height_bits;
+
     obu_header_parser o_h_p_I (
         .clk(clk),
         .rst_n(rst_n),
@@ -49,6 +52,16 @@ module sequence_header_parser (
         .pad_len(obu_header_pad_len),
         .pop(obu_header_pop)
     );
+
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
+            width_bits <= '0;
+            height_bits <= '0;
+        end else if (curr_state == WIDTH_HEIGHT_BITS && avail) begin
+            width_bits <= data_in[13:10] + 'd1;
+            height_bits <= data_in[17:14] + 'd1;
+        end
+    end
 
     always_comb begin
         unique case (curr_state)
@@ -94,13 +107,13 @@ module sequence_header_parser (
             WIDTH: begin
                 if (avail) begin
                     pad = '1;
-                    pad_len = 'd32 - {2'b0, data_in[3:0]};
+                    pad_len = 'd32 - {2'b0, width_bits};
                 end
             end
             HEIGHT: begin
                 if (avail) begin
                     pad = '1;
-                    pad_len = 'd32 - {2'b0, data_in[3:0]};
+                    pad_len = 'd32 - {2'b0, height_bits};
                 end
             end
             FEATURE_ENABLES_COLOR_CONFIG: begin
@@ -126,4 +139,3 @@ module sequence_header_parser (
     end
 
 endmodule
-

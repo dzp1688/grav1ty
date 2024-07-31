@@ -11,24 +11,26 @@ module obu_header_parser (
     input  logic                                 start,
 
     output logic                                 done,
-    output logic [55:0]                          obu_size, // TODO: define struct for data_out
+    output logic [55:0]                          obu_size,
 
     output logic                                 pad,
     output logic [PAD_LEN_WIDTH-1:0]             pad_len,
     output logic                                 pop
 );
-    logic        start;
-    logic        started;
-    logic        done_word;
-    logic        stall;
-    logic [7:0]  data_in;
+    logic started;
+    logic done_word;
+    logic stall;
+    logic pop_buf;
+
+    logic [7:0]  obu_size_data_in;
+    logic [23:0] obu_size_data_in_buf;
 
     leb128_parser obu_size_parser (
         .clk(clk),
         .rst_n(rst_n),
         .start(start),
         .stall(stall),
-        .data_in(data_in),
+        .data_in(obu_size_data_in),
         .data_out(obu_size),
         .done(done) // directly hooked to done since this is the last thing in the header
     );
@@ -52,6 +54,37 @@ module obu_header_parser (
 
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
+            pop_buf <= '0;
+        end else begin
+            pop_buf <= pop;
+        end
+    end
+
+    always_comb begin
+        if (start) begin
+            obu_size_data_in = data_in[15:8];
+        end else if (started && pop_buf) begin
+            obu_size_data_in = data_in[7:0];
+        end else begin
+            obu_size_data_in = obu_size_data_in_buf[7:0];
+        end
+    end
+
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
+            obu_size_data_in <= '0;
+            obu_size_data_in_buf <= '0;
+        end else if (start) begin
+            obu_size_data_in_buf <= {'0, data_in[31:16]};
+        end else if (started && pop_buf)
+            obu_size_data_in_buf <= data_in[23:8];
+        else if (started) begin
+            obu_size_data_in_buf <= {'0, obu_size_data_in_buf[23:8]};
+        end
+    end
+
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
             count <= '0;
         end else if ((start || started) && !stall) begin
             count <= count + 'd1;
@@ -61,4 +94,3 @@ module obu_header_parser (
     end
 
 endmodule
-
